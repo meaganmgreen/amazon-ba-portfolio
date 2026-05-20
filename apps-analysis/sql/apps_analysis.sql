@@ -69,7 +69,7 @@ from top300 t
 left join apps a on t.id = a.id
 where a.id is null; 
 
--- question 11 
+
 select count(*) as errors 
 from apps a 
 join app_categories as ac 
