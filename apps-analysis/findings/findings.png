@@ -1,1 +1,149 @@
+1. Retrieve the name of the app that has the highest number of ratings (i.e., rating_count) and the number of ratings it received.  
+
+Query: 
+select a.name, r.rating_count as rating_count
+from apps a 
+join app_reviews r on a.id = r.id
+group by a.name
+order by rating_count desc
+limit 1;
+Answer: facebook 2,778,691 
+
+2. Retrieve the name and primary category for the apps that are game-center enabled and whose primary category is not "Games" (use apps table). 
+
+Query:
+select a.name, a.category_primary
+from apps a
+where a.game_center = 1
+and a.category_primary != 'Games';
+
+Row count: 586
+
+3. In which primary category, the apps have the highest mean average_rating? 
+
+Query: 
+select a.category_primary, AVG(r.average_rating) as average_rating
+from apps a 
+join app_reviews r on a.id = r.id
+group by a.category_primary 
+order by average_rating desc;
+
+Answer: Book
+
+
+4. List the total number of ratings (rating_count) received for each primary category? Please list them in descending order of the total number of ratings. 
+
+Query:
+select a.category_primary, count(rating_count) as review_count
+from apps a 
+join app_reviews r on a.id = r.id
+group by a.category_primary
+order by review_count desc;
+
+Results: (copy first 5 results) 
+category_primary	review_count
+Games	12636
+Entertainment	5070
+Education	3774
+Lifestyle	3165
+
+5. List the primary category, number of ratings and average ratings for the app “Google Earth”. 
+
+Query: 
+select a.category_primary, r.rating_count as rating_count, r.average_rating as average_rating 
+from apps a 
+join app_reviews r on a.id = r.id 
+where a.name = 'Google Earth' 
+group by a.category_primary;
+
+Result: 
+category_primary	rating_count	average_rating
+Travel	444607	3.5
+
+
+6. (3 pts) Show the top list and list the total number of apps in each top list from the table top300 table. Anything you can say about the findings? 
+
+Query: 
+select t.list as top_list, count(a.id) as total_apps 
+from top300 t 
+join apps a on a.id = t.id
+group by top_list
+order by total_apps desc;
+
+Results:
+top_list	total_apps
+Top Paid	24767
+Top Free	23640
+Top Grossing	21880
+Top iPad Free	10729
+Top iPad Grossing	10476
+Top iPad Paid	10187
+
+Analysis:  
+The list top paid apps has the highest amount of total apps. For ipads however, free apps have a greater amount of total apps than paid ipad list. 
+
+7. (3 pts) In the "Top Free" list, which two primary categories appear most often?
+
+Query: 
+
+select a.category_primary, count(a.category_primary) as category_count
+from apps a 
+join top300 t on a.id = t.id 
+where t.list = "top free" 
+group by a.category_primary 
+order by category_count desc;
+
+
+Answer: games and social networking
+
+
+8. (4 pts) What is the shortest time in number of days between an app’s release date and the date an app makes to the top list? What do you think about this information? 
+
+
+Query: 
+select min((date(t.insert_time) - date(a.release_date))) as shortest_days
+from apps a 
+join top300 t on a.id = t.id;
+
+Answer: -1
+
+Analysis:  I guess an app can be logged into a list before the official release date. 
+
+9. (3 pts) On Aug 31, do we miss any data for any of the top lists? Please provide evidence to support your answer. 
+
+Query:
+select distinct t.list as missing_data, tlt.id
+from top300 t 
+left join top300 tlt
+on t.id = tlt.id and tlt.insert_time = '2024-08-31'
+where tlt.id is null;
+
+Answer: I used a left join to perform an inner join where I could identify if there were matching records for top list data on the specific date, august 31. Because I got null values for each of the top lists (top free, top paid, top grossing, top ipad free, top ipad paid, and top ipad grossing) I can say that we miss data on all of the top lists on that day. 
+
+10. (3 pts) Is the apps table complete? That is, do we have data on all apps that appear in the top 300 list?  Please provide evidence supporting your answer.    
+
+Query: 
+select distinct t.id as missing_data, a.id as apps_id
+from top300 t 
+left join apps a on t.id = a.id
+where a.id is null;
+
+Answer: No, the apps table is not complete. I performed a left join to see if the top300 table had matching records in the app table and the results showed null values for apps_id which indicates missing data.  
+
+11. You have learned that data redundancy is generally bad in a database setting, and you notice that there is redundant information on developer information that exists in both the apps table and the app_categories table, and you decide to check if the information matches. If the information does not match, it indicates inconsistency and potential problem down the road. Please write a query to check if there is any inconsistency. If your answer points out inconsistency, please report the error rate in terms of the percentage of data not matched on this particular piece of information (developer).  
+
+Query:
+select count(*) as errors 
+from apps a 
+join app_categories as ac 
+on a.id = ac.id 
+where a.developer not like ac.developer;
+
+select count(*) as total 
+from apps a 
+join app_categories as ac 
+on a.id = ac.id 
+where a.developer like ac.developer;
+
+Answer: The first query gave me the total number of instances that developer records did not match, and the second query gave me the total number of instances developer records did match. Taking the first number 6,147 and adding 230948 from the second query gives the total number of entries. Dividing the original 6,147 by the total number of entries gives me an error percent of roughly 21%
 
