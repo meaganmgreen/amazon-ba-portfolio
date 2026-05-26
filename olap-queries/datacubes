@@ -1,0 +1,21 @@
+use NorthwindDW;
+
+Select c.City, c.Country, Sum(f.revenue) as total_revenue
+From FactTable f 
+Join CustomerDimension c on f.CustomerID = c.CustomerID
+Group by c.City, c.Country
+Order by total_revenue desc;
+
+Select t.Year, t.Month, sum(f.revenue) as total_revenues
+From FactTable f
+Join TimeDimension t on t.DateID = f.DateID
+group by t.Year, t.Month
+Order by t.Year, t.Month;
+
+Select p.CategoryName, sum(f.revenue) as quarterly_sales, t.Quarter
+From FactTable f
+Join ProductDimension p on f.ProductID = p.ProductID
+Join TimeDimension t on f.DateID = t.DateID
+Where t.Year = 1997
+Group by p.CategoryName, t.Quarter
+Order by p.CategoryName, t.Quarter, quarterly_sales desc;
