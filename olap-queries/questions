@@ -1,0 +1,8 @@
+// Create a data cube that consists of revenues generated from each city, country combination; 
+order the results in descending order of revenues. Based on your result, which city produced the highest revenues?  
+
+// You are interested in understanding the sales trend over time. Please write a query to generate a data cube that would 
+list total revenues in each month over time. 
+
+// Generate a data cube that shows product category sales in each quarter of 1997. In order to see if there is clearly sales 
+trend for each product category, you want to show category first and then quarter, and then the quarterly sales of the category.  
